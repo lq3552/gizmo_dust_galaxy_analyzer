@@ -3,21 +3,21 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-# TO DO: gas_Z be molecular gas_Z
-# 'gas_mass' be total particle mass, or keep it untill you have active gas
 class DustyGalaxy(object):
 
 	def __init__(self, glist):
 		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
 		self._Ms = glist['star_mass']
 		self._Md = glist['dust_mass']
-		self._Zg = glist['gas_Z'] # mass-averaged, may be depreciated
+		self._Zg = glist['gas_Z']
+		self._ZgO = glist['gas_ZO']
 		self._Zd = self._Md / glist['gas_mass'] # depreciated, my suggestion is not to use it!
-		self._Ztot = (self._Mg * self._Zg + self._Md)/glist['gas_mass']
+		self._Ztot = (self._Zg * self._Mg + self._Md)/glist['gas_mass']
 		self._SFR =glist['SFR'] # Msun/yr
 		self._SFRD = glist['SFRD'] # comoving SFR density, Msun/yr/Mpc^3
 		self._rhod = glist['rhod'] # comoving dust density, Msun/Mpc^3
 		self._rhog = glist['rhog']
+		self._rhogz = glist['rhogz']
 		self._z = glist['redshift']
 		self._hp = glist['hp'] # Hubble Parameter
 		self._dim = glist['dimension'] # comoving Mpc
@@ -31,11 +31,13 @@ class DustyGalaxy(object):
 		if(field == 'star_mass'): return self._Ms
 		if(field == 'dust_mass'): return self._Md
 		if(field == 'gas_Z'): return self._Zg
+		if(field == 'gas_ZO'): return self._ZgO
 		if(field == 'dust_Z'): return self._Zd
 		if(field == 'SFR'): return self._SFR
 		if(field == 'SFRD'): return self._SFRD
 		if(field == 'dust_density'): return self._rhod
 		if(field == 'gas_density'): return self._rhog
+		if(field == 'gas_metal_density'): return self._rhogz
 		if(field == 'redshift'): return self._z
 		if(field == 'hubble_constant'): return self._hp
 		if(field == 'dimension'): return self._dim
@@ -108,7 +110,7 @@ class DustyGalaxy(object):
 			alpha = None,\
 			xlabel = r'$\log\ Z\ [Z_\odot]$',\
 			ylabel = r'$\log$ DMR' ):
-		# plot dust to gas metallicity ratio (DMR) vs x (default: Ztot)
+		# plot dust to gas metallicity ratio (DMR) vs x
 		if x == None:
 			x = self._Ztot/0.0134
 		l1 = self._plot_dmr(x,sty,label,alpha,xlabel,ylabel)
@@ -118,7 +120,7 @@ class DustyGalaxy(object):
 			alpha = None,\
 			xlabel = r'$\log\ (M_*/M_\odot)$',\
 			ylabel= r'$\log\ (Z_g/Z_\odot)$'):
-		l1 = self._plot_mmr(self._Ms,np.log10(self._Ztot/0.0134) + 8.69,sty,label,alpha,xlabel,ylabel)
+		l1 = self._plot_mmr(self._Ms,np.log10(self._ZgO/8.65e-3) + 8.69,sty,label,alpha,xlabel,ylabel)
 		return l1
 
 	def plot_sdr(self,sty = 'o',label = None,\

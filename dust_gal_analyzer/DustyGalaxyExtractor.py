@@ -40,31 +40,44 @@ class DustyGalaxyExtractor(object):
 		Md = []
 		Ms = []
 		Z = []
+		ZO = []
 		SFR = []
 		for gal in obj.galaxies:
 			index = gal.glist
 			ad = ds.all_data()
 			Mg.append(gal.masses['gas'].in_units('msun'))
 			Ms.append(gal.masses['stellar'].in_units('msun'))
-			Z.append(gal.metallicities['mass_weighted']) # To do: gas-mass weighted Z!!! just a bit more accurate
+			Z.append(gal.metallicities['mass_weighted'])
+			w =  np.sum(np.array(ad[('PartType0', 'StarFormationRate')][index]).flatten())
+			if len(np.array(ad[('PartType0', 'StarFormationRate')][index]).flatten()) > 0:
+				if w > 0.:
+					ZO.append(np.average(np.array(ad[('PartType0', 'Metallicity_04')][index]).flatten(),\
+								weights = np.array(ad[('PartType0', 'StarFormationRate')][index]).flatten()))
+				else:
+					ZO.append(np.average(np.array(ad[('PartType0', 'Metallicity_04')][index]).flatten(),\
+								weights = np.array(ad[('PartType0', 'Masses')][index]).flatten()))
+			else:
+				ZO.append(0.0)
 			SFR.append(gal.sfr)
 			Md.append(np.sum(ad[('PartType0', 'Dust_Masses')][index])*C.Mcode/C.Msun/ds.hubble_constant)
 		Md = np.array(Md)
 		Mg = np.array(Mg)
 		Ms = np.array(Ms)
 		Z = np.array(Z)
+		ZO = np.array(ZO)
 		SFR = np.array(SFR)
 		
 		# properties of the cosmo box
 		dims = np.array(ds.domain_width.in_units('Mpccm'))
 		SFRD = np.sum(ad[('PartType0', 'StarFormationRate')])/(dims[0]*dims[1]*dims[2])
 		rhod = np.sum(ad[('PartType0', 'Dust_Masses')])*C.Mcode/C.Msun/ds.hubble_constant/(dims[0]*dims[1]*dims[2])
-		rhog = np.sum(ad[('PartType0', 'Masses')].in_units('msun'))/(dims[0]*dims[1]*dims[2])
+		rhog = np.sum(ad[('PartType0', 'Masses')].in_units('msun'))/(dims[0]*dims[1]*dims[2]) - rhod
+		rhogz = np.sum(ad[('PartType0', 'Masses')].in_units('msun')*ad[('PartType0','Metallicity_00')])/(dims[0]*dims[1]*dims[2])
 
 		fname = 'gal_'+self._file.split('.')[0]+'.npz'
-		np.savez(fname,gas_mass = Mg, dust_mass = Md, star_mass = Ms, gas_Z = Z, SFR = SFR,\
+		np.savez(fname,gas_mass = Mg, dust_mass = Md, star_mass = Ms, gas_Z = Z,gas_ZO = ZO, SFR = SFR,\
 				hp = ds.hubble_constant, redshift = ds.current_redshift,dimension = dims,\
-				SFRD = SFRD,rhod = rhod,rhog = rhog)
+				SFRD = SFRD,rhod = rhod,rhog = rhog,rhogz = rhogz)
 		print 'Save the table of galaxy properties to '+fname+'.'
 		glist = np.load(fname)
 		return glist
