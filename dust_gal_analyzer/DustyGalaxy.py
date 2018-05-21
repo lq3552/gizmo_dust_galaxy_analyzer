@@ -11,8 +11,8 @@ class DustyGalaxy(object):
 		self._Md = glist['dust_mass']
 		self._Zg = glist['gas_Z']
 		self._ZgO = glist['gas_ZO']
-		self._Zd = self._Md / glist['gas_mass'] # depreciated, my suggestion is not to use it!
-		self._Ztot = (self._Zg * self._Mg + self._Md)/glist['gas_mass']
+		self._Zd = self._Md / glist['gas_mass']
+		self._Ztot = (self._Zg * self._Mg + self._Md)/glist['gas_mass'] # depreciated?
 		self._SFR =glist['SFR'] # Msun/yr
 		self._SFRD = glist['SFRD'] # comoving SFR density, Msun/yr/Mpc^3
 		self._rhod = glist['rhod'] # comoving dust density, Msun/Mpc^3
@@ -92,7 +92,8 @@ class DustyGalaxy(object):
 			ylabel = r'$\log$ (Gas/Dust mass ratio)' ):
 		# plot dust to gas ratio (DGR) vs x (default: Mstar)
 		if x == None:
-			x = np.log10(self._Ztot/0.0134) + 8.69
+			x = np.log10(self._Zg/0.0134) + 8.69
+#			x = np.log10(self._ZgO/8.65e-3) + 8.69
 		l1 = self._plot_dgr(x,sty,label,alpha,xlabel,ylabel)
 		return l1
 
@@ -112,15 +113,16 @@ class DustyGalaxy(object):
 			ylabel = r'$\log$ DMR' ):
 		# plot dust to gas metallicity ratio (DMR) vs x
 		if x == None:
-			x = self._Ztot/0.0134
+			x = self._Zg/0.0134
 		l1 = self._plot_dmr(x,sty,label,alpha,xlabel,ylabel)
 		return l1
 
 	def plot_mmr(self,sty = 'o',label = None,\
 			alpha = None,\
 			xlabel = r'$\log\ (M_*/M_\odot)$',\
-			ylabel= r'$\log\ (Z_g/Z_\odot)$'):
-		l1 = self._plot_mmr(self._Ms,np.log10(self._ZgO/8.65e-3) + 8.69,sty,label,alpha,xlabel,ylabel)
+			ylabel= r'$12 + \log\ \mathrm{O/H}$'):
+		l1 = self._plot_mmr(self._Ms,np.log10(self._Zg/0.0134) + 8.69,sty,label,alpha,xlabel,ylabel)
+#		l1 = self._plot_mmr(self._Ms,np.log10(self._ZgO/8.65e-3) + 8.69 + 0.7,sty,label,alpha,xlabel,ylabel)
 		return l1
 
 	def plot_sdr(self,sty = 'o',label = None,\
