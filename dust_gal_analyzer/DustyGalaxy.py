@@ -8,14 +8,10 @@ class DustyGalaxy(object):
 	def __init__(self, glist):
 		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
 		self._Ms = glist['star_mass']
-		self._Md = glist['dust_mass']
 		self._Zg = glist['gas_Z']
 		self._ZgO = glist['gas_ZO']
-		self._Zd = self._Md / glist['gas_mass']
-		self._Ztot = (self._Zg * self._Mg + self._Md)/glist['gas_mass'] # depreciated?
 		self._SFR =glist['SFR'] # Msun/yr
 		self._SFRD = glist['SFRD'] # comoving SFR density, Msun/yr/Mpc^3
-		self._rhod = glist['rhod'] # comoving dust density, Msun/Mpc^3
 		self._rhog = glist['rhog']
 		self._rhogz = glist['rhogz']
 		self._z = glist['redshift']
@@ -29,13 +25,10 @@ class DustyGalaxy(object):
 	def get(self, field):
 		if(field == 'gas_mass'): return self._Mg
 		if(field == 'star_mass'): return self._Ms
-		if(field == 'dust_mass'): return self._Md
 		if(field == 'gas_Z'): return self._Zg
 		if(field == 'gas_ZO'): return self._ZgO
-		if(field == 'dust_Z'): return self._Zd
 		if(field == 'SFR'): return self._SFR
 		if(field == 'SFRD'): return self._SFRD
-		if(field == 'dust_density'): return self._rhod
 		if(field == 'gas_density'): return self._rhog
 		if(field == 'gas_metal_density'): return self._rhogz
 		if(field == 'redshift'): return self._z
@@ -125,21 +118,6 @@ class DustyGalaxy(object):
 #		l1 = self._plot_mmr(self._Ms,np.log10(self._ZgO/8.65e-3) + 8.69 + 0.7,sty,label,alpha,xlabel,ylabel)
 		return l1
 
-	def plot_sdr(self,sty = 'o',label = None,\
-			alpha = None,\
-			xlabel = r'$\log\ (M_*/M_\odot)$',\
-			ylabel= r'$\log\ (M_d/M_\odot)$'):
-		l1 = self._plot_sdr(self._Ms,self._Md,sty,label,alpha,xlabel,ylabel)
-		return l1
-
-	def _plot_dmf(self,sty,label,yMIN,yMAX,alpha,xlabel,ylabel):
-		Md = self._Md[np.where(self._Md>0.0)].flatten()
-		bins,mf = self._massfunc(Md,binsize = 0.1,MIN=yMIN,MAX=yMAX)
-		l1, = plt.plot(bins,mf,sty,alpha=alpha,label=label)
-		plt.xlabel(xlabel)
-		plt.ylabel(ylabel)
-		return l1
-
 	def _plot_gmf(self,sty,label,yMIN,yMAX,alpha,xlabel,ylabel):
 		Mg = self._Mg[np.where(self._Mg>0.0)].flatten()
 		bins,mf = self._massfunc(Mg,binsize = 0.1,MIN=yMIN,MAX=yMAX)
@@ -183,32 +161,8 @@ class DustyGalaxy(object):
 		mf[len(bins)-1] = -30
 		return (bins+0.5*binsize),mf
 	
-	def _plot_dgr(self,x,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(x,-np.log10(self._Md/self._Mg),sty,alpha=alpha,label=label)
-		plt.xlabel(xlabel)
-		plt.ylabel(ylabel)
-		return l1
-
-	def _plot_dsr(self,x,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(np.log10(x),np.log10(self._Md/self._Ms),sty,alpha=alpha,label=label)
-		plt.xlabel(xlabel)
-		plt.ylabel(ylabel)
-		return l1
-
-	def _plot_dmr(self,x,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(np.log10(x),np.log10(self._Zd/self._Zg),sty,alpha=alpha,label=label)
-		plt.xlabel(xlabel)
-		plt.ylabel(ylabel)
-		return l1
-	
 	def _plot_mmr(self,mass,met,sty,label,alpha,xlabel,ylabel):
 		l1, = plt.plot(np.log10(mass),met,sty,alpha=alpha,label=label)
-		plt.xlabel(xlabel)
-		plt.ylabel(ylabel)
-		return l1
-
-	def _plot_sdr(self,Ms,Md,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(np.log10(Ms),np.log10(Md),sty,alpha=alpha,label=label)
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1

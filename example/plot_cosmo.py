@@ -15,72 +15,56 @@ mpl.rcParams['ytick.minor.width'] = 2.0
 mpl.rcParams['legend.fontsize'] = 20
 mpl.rc('font',size=20)
 import matplotlib.pyplot as plt
+import sys
 
 def SFRD_MD(z):
 	return 0.015*(1+z)**2.7/(1+((1+z)/2.9)**5.6)
 
-pa = 'm25n256l/'
-pb = 'm25n256h/'
+p = sys.argv[1] + '/'
+n = ['000','001','002','003','004','005','006','007','008','009','010','011','012']#,'013']
+#n = ['000']
+z = []
+zt = np.linspace(0,6,70)
 
-na = ['000','001','002','003','004','005','006','007','008','009','010','011','012','013']
-nb = ['000','001','002','003','004','005','006','007','008','009','010','011','012','013']
+SFRD = []
+rho_g = []
+grho_g = []
 
-za = []
-zb = []
-z = np.linspace(0,6,70)
-
-SFRDa = []
-SFRDb = []
-rho_da = []
-rho_db = []
-rho_ga = []
-rho_gb = []
-
-for i in na:
-	glist = np.load(pa+'gal_snapshot_'+i+'.npz')
+for i in n:
+	glist = np.load(p+'gal_snapshot_'+i+'.npz')
+#	glist = np.load('gal_snap_m25n256_135.npz')
+#	glist = np.load('m25n256lch/gal_snapshot_013.npz')
 	gal = dg(glist)
-	SFRDa.append(gal.get('SFRD'))
-	rho_da.append(gal._Od)
-	rho_ga.append(gal._Og)
-	za.append(gal.get('redshift'))
+	SFRD.append(gal.get('SFRD'))
+	rho_g.append(gal.get('gas_metal_density'))
+	grho_g.append(np.sum(gal.get('gas_mass')*gal.get('gas_Z'))/gal.get('volume'))
+	z.append(gal.get('redshift'))
 
-for i in nb:
-	glist = np.load(pb+'gal_snapshot_'+i+'.npz')
-	gal = dg(glist)
-	SFRDb.append(gal.get('SFRD'))
-	rho_db.append(gal._Od)
-	rho_gb.append(gal._Og)
-	zb.append(gal.get('redshift'))
-
-za = np.array(za)
-zb = np.array(zb)
-SFRDa = np.array(SFRDa)
-SFRDb = np.array(SFRDb)
-rho_da = np.array(rho_da)
-rho_db = np.array(rho_db)
-rho_ga = np.array(rho_ga)
-rho_gb = np.array(rho_gb)
+print grho_g
+z = np.array(z)
+SFRD = np.array(SFRD)
+rho_g = np.array(rho_g)
 
 plt.figure()
-plt.plot(np.log10(1+za),np.log10(SFRDa),'ro',label='m25n256l')
-plt.plot(np.log10(1+zb),np.log10(SFRDb),'bo',label='m25n256h')
-plt.plot(np.log10(1+z),np.log10(SFRD_MD(z)),'k--',label='Maudau & Dickinson 2014')
+plt.plot(np.log10(1+z),np.log10(SFRD),'ro',label=p[:-1])
+plt.plot(np.log10(1+zt),np.log10(SFRD_MD(zt)),'k--',label='Maudau & Dickinson 2014')
 plt.xlabel(r'$\log\ (1+z)$')
 plt.ylabel(r'$\log$ SFRD $(M_\odot\ {\rm yr^{-1}\ Mpc^{-3}})$')
 plt.legend()
+plt.axis([-0.1,0.9,-2.15,-0.85])
 plt.savefig('SFRDz.png',dpi=300)
 
 
 plt.figure()
-l1, = plt.plot(np.log10(1+za),np.log10(rho_da),'ro',label='m25n256l')
-plt.plot(np.log10(1+zb),np.log10(rho_db),'bo',label='m25n256h')
+l2, = plt.plot(np.log10(1+z),np.log10(rho_g),'bo')
+plt.plot(np.log10(1+z),np.log10(grho_g),'bd')
 
-l2, = plt.plot(np.log10(1+za),np.log10(rho_ga),'r*')
-plt.plot(np.log10(1+zb),np.log10(rho_gb),'b*')
-
-legend2 = plt.legend([l2,l1],['gas','dust'],loc=3)
+legend2 = plt.legend([l2],['gas'],loc=3)
 ax = plt.gca().add_artist(legend2)
 plt.xlabel(r'$\log\ (1+z)$')
 plt.ylabel(r'$\log$ $\rho_{\rm met}$ $(M_\odot\ Mpc^{-3}})$')
 plt.legend(loc = 4)
+plt.axis([0,1,3,7])
 plt.savefig('rhoz.png',dpi=300)
+
+np.savez(p+p[:-1]+'_cosmo.npz',SFRD = SFRD, redshift = z,rho_g = rho_g, rho_g_gal = grho_g)

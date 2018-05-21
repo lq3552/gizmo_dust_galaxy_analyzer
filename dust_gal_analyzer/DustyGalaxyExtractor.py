@@ -38,7 +38,6 @@ class DustyGalaxyExtractor(object):
 
 		# properties of individual galaxies
 		Mg = []
-		Md = []
 		Ms = []
 		Z = []
 		ZO = []
@@ -59,8 +58,6 @@ class DustyGalaxyExtractor(object):
 			else:
 				ZO.append(0.0)
 			SFR.append(gal.sfr)
-			Md.append(np.sum(ad[('PartType0', 'Dust_Masses')][index])*C.Mcode/C.Msun/ds.hubble_constant)
-		Md = np.array(Md)
 		Mg = np.array(Mg)
 		Ms = np.array(Ms)
 		Z = np.array(Z)
@@ -70,15 +67,14 @@ class DustyGalaxyExtractor(object):
 		# properties of the cosmo box
 		dims = np.array(ds.domain_width.in_units('Mpccm'))
 		SFRD = np.sum(ad[('PartType0', 'StarFormationRate')])/(dims[0]*dims[1]*dims[2])
-		rhod = np.sum(ad[('PartType0', 'Dust_Masses')])*C.Mcode/C.Msun/ds.hubble_constant/(dims[0]*dims[1]*dims[2])
 		massg = np.array(ad[('PartType0', 'Masses')].in_units('msun'))
-		rhog = np.sum(massg)/(dims[0]*dims[1]*dims[2]) - rhod
+		rhog = np.sum(massg)/(dims[0]*dims[1]*dims[2])
 		rhogz = np.sum(massg*ad[('PartType0','Metallicity_00')])/(dims[0]*dims[1]*dims[2])
 
 		fname = 'gal_'+self._file.split('.')[0]+'.npz'
-		np.savez(fname,gas_mass = Mg, dust_mass = Md, star_mass = Ms, gas_Z = Z,gas_ZO = ZO, SFR = SFR,\
+		np.savez(fname,gas_mass = Mg, star_mass = Ms, gas_Z = Z,gas_ZO = ZO, SFR = SFR,\
 				hp = ds.hubble_constant, redshift = ds.current_redshift,dimension = dims,\
-				SFRD = SFRD,rhod = rhod,rhog = rhog,rhogz = rhogz)
+				SFRD = SFRD,rhog = rhog,rhogz = rhogz)
 		print 'Save the table of galaxy properties to '+fname+'.'
 		glist = np.load(fname)
 		return glist
