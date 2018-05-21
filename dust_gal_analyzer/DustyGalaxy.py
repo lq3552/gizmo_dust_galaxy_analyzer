@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 class DustyGalaxy(object):
 
 	def __init__(self, glist):
-		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
+		self._Mg = glist['gas_mass'] # Msun
 		self._Ms = glist['star_mass']
 		self._Zg = glist['gas_Z']
 		self._ZgO = glist['gas_ZO']
@@ -37,7 +37,7 @@ class DustyGalaxy(object):
 		if(field == 'volume'): 
 			return self._vol
 		else:
-			return ['gas_mass','star_mass','dust_mass','gas_Z','dust_Z','SFR','SFRD','redshift','hubble_constant','dimension','volume']
+			return ['gas_mass','star_mass','gas_Z','SFR','SFRD','redshift','hubble_constant','dimension','volume']
 
 ########################################################################
 #	routines for diagnostic plots
