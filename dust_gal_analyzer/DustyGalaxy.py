@@ -9,6 +9,7 @@ class DustyGalaxy(object):
 		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
 		self._Ms = glist['star_mass']
 		self._Md = glist['dust_mass']
+		self._Mdfr = glist['dust_mass_fr']
 		self._Zg = glist['gas_Z']
 		self._ZgO = glist['gas_ZO']
 		self._Zd = self._Md / glist['gas_mass']
@@ -28,8 +29,10 @@ class DustyGalaxy(object):
 
 	def get(self, field):
 		if(field == 'gas_mass'): return self._Mg
+		if(field == 'gas_mass_fr'): return self._Mgfr
 		if(field == 'star_mass'): return self._Ms
 		if(field == 'dust_mass'): return self._Md
+		if(field == 'dust_mass_fr'): return self._Mdfr
 		if(field == 'gas_Z'): return self._Zg
 		if(field == 'gas_ZO'): return self._ZgO
 		if(field == 'dust_Z'): return self._Zd
@@ -121,8 +124,9 @@ class DustyGalaxy(object):
 			alpha = None,\
 			xlabel = r'$\log\ (M_*/M_\odot)$',\
 			ylabel= r'$12 + \log\ \mathrm{O/H}$'):
-		l1 = self._plot_mmr(self._Ms,np.log10(self._Zg/0.0134) + 8.69,sty,label,alpha,xlabel,ylabel)
-#		l1 = self._plot_mmr(self._Ms,np.log10(self._ZgO/8.65e-3) + 8.69 + 0.7,sty,label,alpha,xlabel,ylabel)
+#		l1 = self._plot_mmr(self._Ms,np.log10(self._Zg/0.0134) + 8.69,sty,label,alpha,xlabel,ylabel)
+#		l1 = self._plot_mmr(self._Ms,np.log10(self._ZgO/8.65e-3) + 8.69 + 0.4,sty,label,alpha,xlabel,ylabel)
+		l1 = self._plot_mmr(self._Ms,np.log10(self._Zg/0.02),sty,label,alpha,xlabel,ylabel)
 		return l1
 
 	def plot_sdr(self,sty = 'o',label = None,\
@@ -184,7 +188,7 @@ class DustyGalaxy(object):
 		return (bins+0.5*binsize),mf
 	
 	def _plot_dgr(self,x,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(x,-np.log10(self._Md/self._Mg),sty,alpha=alpha,label=label)
+		l1, = plt.plot(x,-np.log10(self._Mdfr/self._Mgfr),sty,alpha=alpha,label=label)
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1

@@ -37,32 +37,79 @@ class DustyGalaxyExtractor(object):
 		ad = ds.all_data()
 
 		# properties of individual galaxies
-		Mg = []
-		Md = []
-		Ms = []
+		Mg,Mg_half,Md,Md_full,Md_half,Ms,Mh,Mhi,Mh2,Mtot = [],[],[],[],[],[],[],[],[],[]
+		rb,rbh,rg,rgh,rs,rsh,r200c,r200,rvir = [],[],[],[],[],[],[],[],[]
+		Tmw,Tsw,Tvir = [],[],[]
 		Z = []
 		ZO = []
+		Zs = []
 		SFR = []
 		for gal in obj.galaxies:
+			rg2 = np.array([gal.radii['gas'].in_units('kpc')])[0]**2
+			pos = np.array(gal.pos.in_units('kpc'))
 			index = gal.glist
+			indexs = gal.slist
+			data_Mg = np.array(ad[("PartType0","Masses")][index].in_units('msun'))
+			data_Md = np.array(ad[("PartType0","Dust_Masses")][index])
+			loc =  np.array(ad[("PartType0","Coordinates")][index].in_units('kpc'))
+			loc = loc - pos
+			rloc = loc[:,0]**2+loc[:,1]**2+loc[:,2]**2
+			filt = np.where(rloc <= rg2)
+			filt2 = np.where(rloc <= 0.25*rg2)
+			print "Finish calculating local r_pos..."
 			Mg.append(gal.masses['gas'].in_units('msun'))
 			Ms.append(gal.masses['stellar'].in_units('msun'))
+			Mh.append(gal.masses['H'].in_units('msun'))
+			Mhi.append(gal.masses['HI'].in_units('msun'))
+			Mh2.append(gal.masses['H2'].in_units('msun'))
+			Mtot.append(gal.masses['total'].in_units('msun'))
+			Md.append(np.sum(ad[('PartType0', 'Dust_Masses')][index])*C.Mcode/C.Msun/ds.hubble_constant)
+			Md_full.append(np.sum(data_Md[filt])*C.Mcode/C.Msun/ds.hubble_constant)
+			Mg_half.append(np.sum(data_Mg[filt2]))
+			Md_half.append(np.sum(data_Md[filt2])*C.Mcode/C.Msun/ds.hubble_constant)
+			rb.append(gal.radii['baryon'].in_units('kpc'))
+			rbh.append(gal.radii['baryon_half_mass'].in_units('kpc'))
+			rg.append(gal.radii['gas'].in_units('kpc'))
+			rgh.append(gal.radii['gas_half_mass'].in_units('kpc'))
+			rs.append(gal.radii['stellar'].in_units('kpc'))
+			rsh.append(gal.radii['stellar_half_mass'].in_units('kpc'))
+			r200c.append(gal.radii['r200c'].in_units('kpc'))
+			r200.append(gal.radii['r200'].in_units('kpc'))
+			rvir.append(gal.radii['virial'].in_units('kpc'))
+			Tvir.append(gal.temperatures['virial'].in_units('K'))
+			Tmw.append(gal.temperatures['mass_weighted'].in_units('K'))
+			Tsw.append(gal.temperatures['sfr_weighted'].in_units('K'))
 			Z.append(gal.metallicities['sfr_weighted'])
-			w =  np.sum(np.array(ad[('PartType0', 'StarFormationRate')][index]).flatten())
-			if len(np.array(ad[('PartType0', 'StarFormationRate')][index]).flatten()) > 0:
+			w =  np.sum(np.array(ad[('PartType4', 'Masses')][indexs]).flatten())
+			if len(np.array(ad[('PartType4', 'Masses')][indexs]).flatten()) > 0:
 				if w > 0.:
-					ZO.append(np.average(np.array(ad[('PartType0', 'Metallicity_04')][index]).flatten(),\
-								weights = np.array(ad[('PartType0', 'StarFormationRate')][index]).flatten()))
+					ZO.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
+								weights = np.array(ad[('PartType4', 'Masses')][indexs]).flatten()))
 				else:
-					ZO.append(np.average(np.array(ad[('PartType0', 'Metallicity_04')][index]).flatten(),\
-								weights = np.array(ad[('PartType0', 'Masses')][index]).flatten()))
+					ZO.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
+								weights = np.array(ad[('PartType4', 'Masses')][indexs]).flatten()))
 			else:
 				ZO.append(0.0)
 			SFR.append(gal.sfr)
-			Md.append(np.sum(ad[('PartType0', 'Dust_Masses')][index])*C.Mcode/C.Msun/ds.hubble_constant)
 		Md = np.array(Md)
 		Mg = np.array(Mg)
 		Ms = np.array(Ms)
+		Mh = np.array(Mh)
+		Mhi = np.array(Mhi)
+		Mh2 = np.array(Mh2)
+		Mtot = np.array(Mtot)
+		rb = np.array(rb)
+		rbh = np.array(rbh)
+		rg = np.array(rg)
+		rgh = np.array(rgh)
+		rs = np.array(rs)
+		rsh = np.array(rsh)
+		r200 = np.array(r200)
+		r200c = np.array(r200c)
+		rvir = np.array(rvir)
+		Tmw  = np.array(Tmw)
+		Tsw  = np.array(Tsw)
+		Tvir  = np.array(Tvir)
 		Z = np.array(Z)
 		ZO = np.array(ZO)
 		SFR = np.array(SFR)
@@ -76,7 +123,16 @@ class DustyGalaxyExtractor(object):
 		rhogz = np.sum(massg*ad[('PartType0','Metallicity_00')])/(dims[0]*dims[1]*dims[2])
 
 		fname = 'gal_'+self._file.split('.')[0]+'.npz'
-		np.savez(fname,gas_mass = Mg, dust_mass = Md, star_mass = Ms, gas_Z = Z,gas_ZO = ZO, SFR = SFR,\
+		np.savez(fname,\
+				gas_mass = Mg, dust_mass = Md,dust_mass_fr = Md_full,\
+				gas_mass_hr = Mg_half, dust_mass_hr = Md_half,\
+				star_mass = Ms, gas_Z = Z,gas_ZO = ZO, SFR = SFR,\
+				mass_h = Mh, mass_hi = Mhi, mass_h2 = Mh2, mass_tot = Mtot,\
+				baryon_radii = rb,baryon_radii_hm = rbh,\
+				star_radii = rs,star_radii_hm = rsh,\
+				gas_radii = rg,gas_radii_hm = rgh,\
+				r200 = r200,r200c = r200c, radii_vir = rvir,\
+				T_mass_weighted = Tmw, T_sfr_weighted = Tsw, T_vir = Tvir,\
 				hp = ds.hubble_constant, redshift = ds.current_redshift,dimension = dims,\
 				SFRD = SFRD,rhod = rhod,rhog = rhog,rhogz = rhogz)
 		print 'Save the table of galaxy properties to '+fname+'.'

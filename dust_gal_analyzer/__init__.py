@@ -1,4 +1,4 @@
-__version__ = '0.1'
+__version__ = '1.2'
 __all__ = ['DustyGalaxy','DustyGalaxyExtractor','constants']
 
 # Import the classes and functions from the files of the same
