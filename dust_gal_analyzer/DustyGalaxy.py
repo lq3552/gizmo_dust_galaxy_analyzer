@@ -7,10 +7,12 @@ class DustyGalaxy(object):
 
 	def __init__(self, glist):
 		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
+		self._Mghr = glist['gas_mass_hr'] - glist['dust_mass_hr'] # Msun
 		self._Ms = glist['star_mass']
 		self._Md = glist['dust_mass']
-		self._Mdfr = glist['dust_mass_fr']
+		self._Mdhr = glist['dust_mass_hr']
 		self._Zg = glist['gas_Z']
+		self._Zgm = glist['gas_Zm']
 		self._ZgO = glist['gas_ZO']
 		self._Zd = self._Md / glist['gas_mass']
 		self._Ztot = (self._Zg * self._Mg + self._Md)/glist['gas_mass'] # depreciated?
@@ -29,11 +31,12 @@ class DustyGalaxy(object):
 
 	def get(self, field):
 		if(field == 'gas_mass'): return self._Mg
-		if(field == 'gas_mass_fr'): return self._Mgfr
+		if(field == 'gas_mass_hr'): return self._Mghr
 		if(field == 'star_mass'): return self._Ms
 		if(field == 'dust_mass'): return self._Md
-		if(field == 'dust_mass_fr'): return self._Mdfr
+		if(field == 'dust_mass_hr'): return self._Mdhr
 		if(field == 'gas_Z'): return self._Zg
+		if(field == 'gas_Z_mw'): return self._Zgm
 		if(field == 'gas_ZO'): return self._ZgO
 		if(field == 'dust_Z'): return self._Zd
 		if(field == 'SFR'): return self._SFR
@@ -188,7 +191,7 @@ class DustyGalaxy(object):
 		return (bins+0.5*binsize),mf
 	
 	def _plot_dgr(self,x,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(x,-np.log10(self._Mdfr/self._Mgfr),sty,alpha=alpha,label=label)
+		l1, = plt.plot(x,-np.log10(self._Md/self._Mg),sty,alpha=alpha,label=label)
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
