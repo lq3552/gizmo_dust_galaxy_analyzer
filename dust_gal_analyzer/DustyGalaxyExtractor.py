@@ -19,7 +19,7 @@ class DustyGalaxyExtractor(object):
 			# create a new CAESAR object, and pass along the yt dataset
 			self.obj = cs.CAESAR(self.ds)
 			# find haloes and galaxies
-			self.obj.member_search(blackholes=True,lowres=[2,3])
+			self.obj.member_search(blackholes=True)
 		else:
 			self.obj = cs.load('caesar_'+fname)
 			self.obj.yt_dataset = self.ds
@@ -42,7 +42,7 @@ class DustyGalaxyExtractor(object):
 		Tmw,Tsw,Tvir = [],[],[]
 		Z = []
 		Zm = []
-		ZO = []
+		Zs = []
 		SFR = []
 		for gal in obj.galaxies:
 			rg2 = np.array([gal.radii['gas'].in_units('kpc')])[0]**2
@@ -84,13 +84,13 @@ class DustyGalaxyExtractor(object):
 			w =  np.sum(np.array(ad[('PartType4', 'Masses')][indexs]).flatten())
 			if len(np.array(ad[('PartType4', 'Masses')][indexs]).flatten()) > 0:
 				if w > 0.:
-					ZO.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
-								weights = np.array(ad[('PartType4', 'SFR')][indexs]).flatten()))
+					Zs.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
+								weights = np.array(ad[('PartType4', 'Masses')][indexs]).flatten()))
 				else:
-					ZO.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
-								weights = np.array(ad[('PartType4', 'SFR')][indexs]).flatten()))
+					Zs.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
+								weights = np.array(ad[('PartType4', 'Masses')][indexs]).flatten()))
 			else:
-				ZO.append(0.0)
+				Zs.append(0.0)
 			SFR.append(gal.sfr)
 		Md = np.array(Md)
 		Mg = np.array(Mg)
@@ -112,7 +112,7 @@ class DustyGalaxyExtractor(object):
 		Tsw  = np.array(Tsw)
 		Tvir  = np.array(Tvir)
 		Z = np.array(Z)
-		ZO = np.array(ZO)
+		Zs = np.array(Zs)
 		SFR = np.array(SFR)
 		
 		# properties of the cosmo box
@@ -127,7 +127,7 @@ class DustyGalaxyExtractor(object):
 		np.savez(fname,\
 				gas_mass = Mg, dust_mass = Md,\
 				gas_mass_hr = Mg_half, dust_mass_hr = Md_half,\
-				star_mass = Ms, gas_Z = Z,gas_Zm = Zm,gas_ZO = ZO, SFR = SFR,\
+				star_mass = Ms, gas_Z = Z,gas_Zm = Zm,star_Z = Zs, SFR = SFR,\
 				mass_h = Mh, mass_hi = Mhi, mass_h2 = Mh2, mass_tot = Mtot,\
 				baryon_radii = rb,baryon_radii_hm = rbh,\
 				star_radii = rs,star_radii_hm = rsh,\

@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib as mpl
-mpl.use('Agg')
 import matplotlib.pyplot as plt
 
 class DustyGalaxy(object):
@@ -13,7 +11,7 @@ class DustyGalaxy(object):
 		self._Mdhr = glist['dust_mass_hr']
 		self._Zg = glist['gas_Z']
 		self._Zgm = glist['gas_Zm']
-		self._ZgO = glist['gas_ZO']
+		self._Zs = glist['star_Z']
 		self._Zd = self._Md / glist['gas_mass']
 		self._Ztot = (self._Zg * self._Mg + self._Md)/glist['gas_mass'] # depreciated?
 		self._SFR =glist['SFR'] # Msun/yr
@@ -26,8 +24,6 @@ class DustyGalaxy(object):
 		self._dim = glist['dimension'] # comoving Mpc
 		self._vol = (self._dim[0]*self._dim[1]*self._dim[2]) # comoving Mpc^3
 
-		self._set_mpl()
-
 
 	def get(self, field):
 		if(field == 'gas_mass'): return self._Mg
@@ -37,7 +33,7 @@ class DustyGalaxy(object):
 		if(field == 'dust_mass_hr'): return self._Mdhr
 		if(field == 'gas_Z'): return self._Zg
 		if(field == 'gas_Z_mw'): return self._Zgm
-		if(field == 'gas_ZO'): return self._ZgO
+		if(field == 'star_Z'): return self._ZgO
 		if(field == 'dust_Z'): return self._Zd
 		if(field == 'SFR'): return self._SFR
 		if(field == 'SFRD'): return self._SFRD
@@ -219,20 +215,6 @@ class DustyGalaxy(object):
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
-
-	def _set_mpl(self):
-		mpl.rcParams['figure.figsize'] = (10.0,8.0)
-		mpl.rcParams['lines.linewidth'] = 3.0
-		mpl.rcParams['axes.linewidth'] = 2.0
-		mpl.rcParams['axes.labelsize'] = 24
-		mpl.rcParams['xtick.labelsize'] = 22
-		mpl.rcParams['ytick.labelsize'] = 22
-		mpl.rcParams['xtick.major.width'] = 2.0
-		mpl.rcParams['xtick.minor.width'] = 2.0
-		mpl.rcParams['ytick.major.width'] = 2.0
-		mpl.rcParams['ytick.minor.width'] = 2.0
-		mpl.rcParams['legend.fontsize'] = 22
-		mpl.rc('font',size=24)
 
 
 if __name__ == "__main__":
