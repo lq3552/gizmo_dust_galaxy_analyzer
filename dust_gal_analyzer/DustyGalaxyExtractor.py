@@ -19,7 +19,7 @@ class DustyGalaxyExtractor(object):
 			# create a new CAESAR object, and pass along the yt dataset
 			self.obj = cs.CAESAR(self.ds)
 			# find haloes and galaxies
-			self.obj.member_search()
+			self.obj.member_search(blackholes=True,lowres=[2,3])
 		else:
 			self.obj = cs.load('caesar_'+fname)
 			self.obj.yt_dataset = self.ds
@@ -80,6 +80,7 @@ class DustyGalaxyExtractor(object):
 			Tmw.append(gal.temperatures['mass_weighted'].in_units('K'))
 			Tsw.append(gal.temperatures['sfr_weighted'].in_units('K'))
 			Z.append(gal.metallicities['sfr_weighted'])
+			Zm.append(gal.metallicities['mass_weighted'])
 			w =  np.sum(np.array(ad[('PartType4', 'Masses')][indexs]).flatten())
 			if len(np.array(ad[('PartType4', 'Masses')][indexs]).flatten()) > 0:
 				if w > 0.:
@@ -124,9 +125,9 @@ class DustyGalaxyExtractor(object):
 
 		fname = 'gal_'+self._file.split('.')[0]+'.npz'
 		np.savez(fname,\
-				gas_mass = Mg, dust_mass = Md,dust_mass_fr = Md_full,\
+				gas_mass = Mg, dust_mass = Md,\
 				gas_mass_hr = Mg_half, dust_mass_hr = Md_half,\
-				star_mass = Ms, gas_Z = Z,gas_ZO = ZO, SFR = SFR,\
+				star_mass = Ms, gas_Z = Z,gas_Zm = Zm, gas_ZO = ZO, SFR = SFR,\
 				mass_h = Mh, mass_hi = Mhi, mass_h2 = Mh2, mass_tot = Mtot,\
 				baryon_radii = rb,baryon_radii_hm = rbh,\
 				star_radii = rs,star_radii_hm = rsh,\

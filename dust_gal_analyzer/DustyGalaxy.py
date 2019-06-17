@@ -6,12 +6,16 @@ import matplotlib.pyplot as plt
 class DustyGalaxy(object):
 
 	def __init__(self, glist):
+		self._set_mpl()
 		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
+		self._Mghi = glist['mass_hi']
+		self._Mgh2 = glist['mass_h2']
+		self._Mghr = glist['gas_mass_hr'] - glist['dust_mass_hr'] # Msun
 		self._Ms = glist['star_mass']
 		self._Md = glist['dust_mass']
-		self._Mdfr = glist['dust_mass_fr']
+		self._Mdhr = glist['dust_mass_hr']
+		self._rg = glist['gas_radii']
 		self._Zg = glist['gas_Z']
-		self._ZgO = glist['gas_ZO']
 		self._Zd = self._Md / glist['gas_mass']
 		self._Ztot = (self._Zg * self._Mg + self._Md)/glist['gas_mass'] # depreciated?
 		self._SFR =glist['SFR'] # Msun/yr
@@ -24,21 +28,19 @@ class DustyGalaxy(object):
 		self._dim = glist['dimension'] # comoving Mpc
 		self._vol = (self._dim[0]*self._dim[1]*self._dim[2]) # comoving Mpc^3
 
-		self._set_mpl()
 
-
-	def get(self, field):
+	def get(self, field): # cumbersome, need improvement
 		if(field == 'gas_mass'): return self._Mg
-		if(field == 'gas_mass_fr'): return self._Mgfr
+		if(field == 'gas_mass_hr'): return self._Mghr
+		if(field == 'gas_radii'): return self._rg
+		if(field == 'gas_Z'): return self._Zg
 		if(field == 'star_mass'): return self._Ms
 		if(field == 'dust_mass'): return self._Md
-		if(field == 'dust_mass_fr'): return self._Mdfr
-		if(field == 'gas_Z'): return self._Zg
-		if(field == 'gas_ZO'): return self._ZgO
+		if(field == 'dust_mass_hr'): return self._Mdhr
 		if(field == 'dust_Z'): return self._Zd
+		if(field == 'dust_density'): return self._rhod
 		if(field == 'SFR'): return self._SFR
 		if(field == 'SFRD'): return self._SFRD
-		if(field == 'dust_density'): return self._rhod
 		if(field == 'gas_density'): return self._rhog
 		if(field == 'gas_metal_density'): return self._rhogz
 		if(field == 'redshift'): return self._z
@@ -47,7 +49,10 @@ class DustyGalaxy(object):
 		if(field == 'volume'): 
 			return self._vol
 		else:
-			return ['gas_mass','star_mass','dust_mass','gas_Z','dust_Z','SFR','SFRD','redshift','hubble_constant','dimension','volume']
+			return ['gas_mass','gas_mass_hr','gas_radii','gas_Z','star_mass',
+			'dust_mass','dust_mass_hr','dust_Z','SFR','SFRD','dust_density',
+			'gas_density','gas_metal_density','redshift','hubble_constant',
+			'dimension','volume']
 
 ########################################################################
 #	routines for diagnostic plots
@@ -67,10 +72,12 @@ class DustyGalaxy(object):
 #########################################################################
 	def plot_dmf(self,sty = 'o',label = None,yMIN = -1,yMAX = -1,\
 			alpha = None,\
+			lw = 1.5,\
+			markersize = 10,\
 			xlabel =r'$\log\ M_d\ [M_\odot]$',\
 			ylabel =r'$\log\ \phi\ [{\rm Mpc^{-3}dex^{-1}}]$'):
 		# plot dust mass function
-		l1 = self._plot_dmf(sty,label,yMIN,yMAX,alpha,xlabel,ylabel)
+		l1 = self._plot_dmf(sty,label,yMIN,yMAX,alpha,lw,markersize,xlabel,ylabel)
 		return l1
 	
 	def plot_gmf(self,sty = 'o',label = None,yMIN = -1,yMAX = -1,\
@@ -90,14 +97,25 @@ class DustyGalaxy(object):
 		return l1
 	
 	def plot_dgr(self,x = None,sty = 'o',label = None,\
+			markersize = 1,\
 			alpha = None,\
-			xlabel = r'$12+\log(O/H)$',\
-			ylabel = r'$\log$ (Gas/Dust mass ratio)' ):
-		# plot dust to gas ratio (DGR) vs x (default: Mstar)
+			xlabel = r'$\log\ (Z/Z_\odot)$',\
+			ylabel = r'$\log$ DGR' ):
+		# plot dust to gas ratio (DGR) vs x (default: Zg)
 		if x == None:
-			x = np.log10(self._Zg/0.0134) + 8.69
-#			x = np.log10(self._ZgO/8.65e-3) + 8.69
-		l1 = self._plot_dgr(x,sty,label,alpha,xlabel,ylabel)
+			x = np.log10(self._Zg/0.0134)
+		l1 = self._plot_dgr(x,sty,label,markersize,alpha,xlabel,ylabel)
+		return l1
+
+	def plot_dtm(self,x = None,sty = 'o',label = None,\
+			markersize = 1,\
+			alpha = None,\
+			xlabel = r'$\log\ (Z/Z_\odot)$',\
+			ylabel = r'$\log$ DTM' ):
+		# plot dust to (gas) metal ratio (DTM) vs x (default: Zg)
+		if x == None:
+			x = np.log10(self._Zg/0.0134)
+		l1 = self._plot_dtm(x,sty,label,markersize,alpha,xlabel,ylabel)
 		return l1
 
 	def plot_dsr(self,x = None,sty = 'o',label = None,\
@@ -136,10 +154,10 @@ class DustyGalaxy(object):
 		l1 = self._plot_sdr(self._Ms,self._Md,sty,label,alpha,xlabel,ylabel)
 		return l1
 
-	def _plot_dmf(self,sty,label,yMIN,yMAX,alpha,xlabel,ylabel):
+	def _plot_dmf(self,sty,label,yMIN,yMAX,alpha,lw,markersize,xlabel,ylabel):
 		Md = self._Md[np.where(self._Md>0.0)].flatten()
 		bins,mf = self._massfunc(Md,binsize = 0.1,MIN=yMIN,MAX=yMAX)
-		l1, = plt.plot(bins,mf,sty,alpha=alpha,label=label)
+		l1, = plt.plot(bins,mf,sty,lw=lw,markersize=markersize,alpha=alpha,label=label)
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
@@ -187,8 +205,14 @@ class DustyGalaxy(object):
 		mf[len(bins)-1] = -30
 		return (bins+0.5*binsize),mf
 	
-	def _plot_dgr(self,x,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(x,-np.log10(self._Mdfr/self._Mgfr),sty,alpha=alpha,label=label)
+	def _plot_dgr(self,x,sty,label,markersize,alpha,xlabel,ylabel):
+		l1, = plt.plot(x,np.log10(self._Md/self._Mg),sty,alpha=alpha,markersize=markersize,label=label)
+		plt.xlabel(xlabel)
+		plt.ylabel(ylabel)
+		return l1
+
+	def _plot_dtm(self,x,sty,label,markersize,alpha,xlabel,ylabel):
+		l1, = plt.plot(x,np.log10(self._Md/(self._Zg*self._Mg)),sty,markersize=markersize,alpha=alpha,label=label)
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
@@ -216,21 +240,6 @@ class DustyGalaxy(object):
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
-
-	def _set_mpl(self):
-		mpl.rcParams['figure.figsize'] = (10.0,8.0)
-		mpl.rcParams['lines.linewidth'] = 3.0
-		mpl.rcParams['axes.linewidth'] = 2.0
-		mpl.rcParams['axes.labelsize'] = 24
-		mpl.rcParams['xtick.labelsize'] = 22
-		mpl.rcParams['ytick.labelsize'] = 22
-		mpl.rcParams['xtick.major.width'] = 2.0
-		mpl.rcParams['xtick.minor.width'] = 2.0
-		mpl.rcParams['ytick.major.width'] = 2.0
-		mpl.rcParams['ytick.minor.width'] = 2.0
-		mpl.rcParams['legend.fontsize'] = 22
-		mpl.rc('font',size=24)
-
 
 if __name__ == "__main__":
 	# usage example
