@@ -41,7 +41,7 @@ class DustyGalaxyExtractor(object):
 		rb,rbh,rg,rgh,rs,rsh,r200c,r200,rvir = [],[],[],[],[],[],[],[],[]
 		Tmw,Tsw,Tvir = [],[],[]
 		Z = []
-		ZO = []
+		Zm = []
 		Zs = []
 		SFR = []
 		for gal in obj.galaxies:
@@ -84,13 +84,13 @@ class DustyGalaxyExtractor(object):
 			w =  np.sum(np.array(ad[('PartType4', 'Masses')][indexs]).flatten())
 			if len(np.array(ad[('PartType4', 'Masses')][indexs]).flatten()) > 0:
 				if w > 0.:
-					ZO.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
+					Zs.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
 								weights = np.array(ad[('PartType4', 'Masses')][indexs]).flatten()))
 				else:
-					ZO.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
+					Zs.append(np.average(np.array(ad[('PartType4', 'Metallicity_00')][indexs]).flatten(),\
 								weights = np.array(ad[('PartType4', 'Masses')][indexs]).flatten()))
 			else:
-				ZO.append(0.0)
+				Zs.append(0.0)
 			SFR.append(gal.sfr)
 		Md = np.array(Md)
 		Mg = np.array(Mg)
@@ -112,7 +112,7 @@ class DustyGalaxyExtractor(object):
 		Tsw  = np.array(Tsw)
 		Tvir  = np.array(Tvir)
 		Z = np.array(Z)
-		ZO = np.array(ZO)
+		Zs = np.array(Zs)
 		SFR = np.array(SFR)
 		
 		# properties of the cosmo box
