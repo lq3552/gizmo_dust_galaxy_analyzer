@@ -47,7 +47,7 @@ Y = X[:,KK]
 X = X[:,:KK]
 
 ### clustering
-clt = DBSCAN(eps=0.065,min_samples=30)
+clt = DBSCAN(eps=0.1,min_samples=30)
 clt.fit(XC)
 
 # clustering plot
@@ -59,7 +59,7 @@ for i in np.unique(clt.labels_):
 plt.legend()
 plt.xlabel(r'$12 + \log (O/H)$')
 plt.ylabel('G/D')
-plt.savefig('clustering.png',eps=300)
+plt.savefig('clustering.png',dpi=300)
 
 # only fit "main sequence"
 X = X[clt.labels_==0]

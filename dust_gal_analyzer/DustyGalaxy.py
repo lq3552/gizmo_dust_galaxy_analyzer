@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 class DustyGalaxy(object):
 
 	def __init__(self, glist):
-		self._set_mpl()
+		self._glist = glist
 		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
 		self._Mghi = glist['mass_hi']
 		self._Mgh2 = glist['mass_h2']
@@ -51,6 +51,74 @@ class DustyGalaxy(object):
 			'dust_mass','dust_mass_hr','dust_Z','SFR','SFRD','dust_density',
 			'gas_density','gas_metal_density','redshift','hubble_constant',
 			'dimension','volume']
+
+########################################################################
+#	Analysis tools
+########################################################################
+	def get_ms_and_quenched_galaxies(self,eps=0.1,min_samples=30):
+	# For now it generates a new npz and reload it to return a new DustyGalaxy object. I need to find a way to do this without S/L external files
+		from sklearn.cluster import DBSCAN
+
+		ssfr = self._SFR/self._Ms*1.e9
+		Zmet = np.log10(self._Zg/0.0134)
+		dgr = np.log10(self._Md/self._Mg)
+		ssfr = np.log10(ssfr+10**(-2.5+0.3*self._z))
+		index  = np.arange(len(Zmet))
+
+		X = np.zeros((len(Zmet),4))
+		X[:,0] = Zmet
+		X[:,1] = ssfr 
+		X[:,2] = dgr
+		X[:,3] = index
+
+		# clean up data and prepare vectors needed for fitting
+		X = X[~np.isnan(X).any(axis=1)]
+		X = X[~np.isinf(X).any(axis=1)]
+		X = X[np.lexsort(np.rot90(X))] # sort the data in lexicographical order
+		Zmet = X[:,0]
+		dgr = X[:,2]
+		index = X[:,3]
+
+		# ND points for clustering (seperate "main sequence" from quenched galaxies)
+		NN = len(X[:,0])
+		XC = np.zeros((NN,3))
+		XC[:,0] = X[:,0]
+		XC[:,1] = X[:,1]
+		XC[:,2] = X[:,2]
+
+		# clustering
+		clt = DBSCAN(eps=eps,min_samples=min_samples)
+		clt.fit(XC)
+
+		index_ms       = index[np.where(clt.labels_==0)].astype(int)
+		index_quenched = index[np.where(clt.labels_!=0)].astype(int)
+		glist_ms       = self._save_glist_sub(index_ms,fname='tmp_sf.npz')
+		glist_quenched = self._save_glist_sub(index_quenched,fname='tmp_q.npz')
+
+		return DustyGalaxy(glist_ms),DustyGalaxy(glist_quenched) 
+
+	def _save_glist_sub(self,index,fname='tmp.npz'):
+		glist = self._glist
+		np.savez(fname,gas_mass=glist['gas_mass'][index],
+			gas_mass_hr = glist['gas_mass_hr'][index],
+			mass_hi = glist['mass_hi'][index],
+			mass_h2 = glist['mass_h2'][index],
+			star_mass = glist['star_mass'][index],
+			dust_mass = glist['dust_mass'][index],
+			dust_mass_hr = glist['dust_mass_hr'][index],
+			gas_radii = glist['gas_radii'][index],
+			gas_Z = glist['gas_Z'][index],
+			SFR =glist['SFR'][index],
+			SFRD = glist['SFRD'],
+			rhod = glist['rhod'],
+			rhog = glist['rhog'],
+			rhogz = glist['rhogz'],
+			redshift = glist['redshift'],
+			hp = glist['hp'],
+			dimension = glist['dimension'])
+		return np.load(fname)
+		
+
 
 ########################################################################
 #	routines for diagnostic plots
