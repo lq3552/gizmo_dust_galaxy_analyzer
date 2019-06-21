@@ -1,9 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 class DustyGalaxy(object):
 
 	def __init__(self, glist):
+
+		self._set_mpl()
+
 		self._glist = glist
 		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
 		self._Mghi = glist['mass_hi']
@@ -306,6 +310,20 @@ class DustyGalaxy(object):
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
+
+	def _set_mpl(self):
+ 		mpl.rcParams['figure.figsize'] = (10.0,8.0)
+ 		mpl.rcParams['lines.linewidth'] = 3.0
+ 		mpl.rcParams['axes.linewidth'] = 2.0
+ 		mpl.rcParams['axes.labelsize'] = 24
+ 		mpl.rcParams['xtick.labelsize'] = 22
+ 		mpl.rcParams['ytick.labelsize'] = 22
+ 		mpl.rcParams['xtick.major.width'] = 2.0
+ 		mpl.rcParams['xtick.minor.width'] = 2.0
+ 		mpl.rcParams['ytick.major.width'] = 2.0
+ 		mpl.rcParams['ytick.minor.width'] = 2.0
+ 		mpl.rcParams['legend.fontsize'] = 22
+ 		mpl.rc('font',size=24)
 
 if __name__ == "__main__":
 	# usage example
