@@ -1,2 +1,12 @@
-# Z_active stellar_mass_active sfr_active  gas_mass_active
-0.025266343856636311 2986950844829.313 211.10066160538918 115795381548.67749
+# Table of input parameters
+
+# Order: MUST follow (Z, stellar_mass, sfr, gas_mass) 
+
+# Units:
+# Z: NOT normalized to Zsolar
+# stellar mass/gas mass: Msolar
+# sfr: Msolar/year
+
+# Z    sfr   gas_mass
+0.0252 211.1 115795381548.67749
+0.0134 1.0   100000000000.0

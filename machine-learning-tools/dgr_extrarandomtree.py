@@ -189,13 +189,14 @@ if __name__ == "__main__":
 	tab  = np.loadtxt(in_tab)
 
 	X_in = input_prepare(ipar,tab)
-	print X_in
 	X,Y,labels = matrix_prepare(ipar,sim='gal_snapshot_151.npz')
 	X,Y,X_cv,Y_cv = split_train_cv(X,Y)
 	regr,mse_train,mse_cv = regression(X,Y,X_cv,Y_cv,n_estimators=200,criterion='mse',max_depth=10)
-	print mse_train,mse_cv
+	print "mse_train, mse_c.v. = ",mse_train,mse_cv
 	
 	Y_out = predict(regr,X_in)
 	if len(sys.argv) > 3:
 		out_dgr = sys.argv[3]
 		np.savetxt(out_dgr,Y_out)
+	else:
+		print Y_out

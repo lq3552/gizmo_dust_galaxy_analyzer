@@ -1,16 +1,14 @@
-# DGalA
-DGalA (dusty galaxy analyzer) is a tool to extract dusty galaxies from GIZMO simulations and analyze them in Python
+# Dusty Galaxy Analyzer
+Dusty Galaxy Analyzer is a tool to extract dusty galaxies from `SIMBA` simulations and analyze them in Python
 
-## Get DGalA
+## Get
 
-Currently this package is private.
-
-Internal members can get it via
+You can download it via
 ```bash
 git clone https://bitbucket.org/lq3552/dust_gal_analyzer
 ```
 
-## Build DGalA
+## Build
 
 DGalA requires:
 
@@ -29,7 +27,8 @@ or, if you need root access,
 ```bash
 sudo python setup.py install
 ```
-## Usage
+
+## Basic usage
 
 To extract dusty galaxies from GIZMO snapshots:
 ```python
@@ -44,4 +43,13 @@ To analyze dusty galaxy properties or statistics, such as the dust-mass function
 from dust_gal_analyzer import DustyGalaxy
 gal =  DustyGalaxy(glist)
 gal.plot_dmf()
+```
+
+## Tools
+
+You can find a tool to predict dust-to-gas ratio in `machine-learning-tools`, using a regressor trained by simulated data. 
+Please define which input parameters are active following `param.list`, and set values of input parameters following `tab.txt`.
+Then you can run the tool by
+```bash
+python dgr_extrarandomtree.py param.list tab.txt [DGR_output_list]
 ```
