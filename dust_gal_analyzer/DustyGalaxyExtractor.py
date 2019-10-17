@@ -130,7 +130,7 @@ class DustyGalaxyExtractor(object):
 		np.savez(fname,\
 				gas_mass = Mg, dust_mass = Md,\
 				gas_mass_hr = Mg_half, dust_mass_hr = Md_half,\
-				star_mass = Ms, star_Z = Zs gas_Z = Z,gas_Zm = Zm, gas_ZO = ZO, SFR = SFR,\
+				star_mass = Ms, star_Z = Zs, gas_Z = Z,gas_Zm = Zm, gas_ZO = ZO, SFR = SFR,\
 				mass_h = Mh, mass_hi = Mhi, mass_h2 = Mh2, mass_tot = Mtot,\
 				baryon_radii = rb,baryon_radii_hm = rbh,\
 				star_radii = rs,star_radii_hm = rsh,\
