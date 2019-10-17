@@ -4,8 +4,12 @@
 # example: python dgr_extrarandomtree.py parameter_list table_input [DGR_output]
 # update needed: refactor heavily, OOP, even more intelligent input, out-of-main-sequence handler
 
+
+from __future__ import absolute_import
+from __future__ import print_function
+from __future__ import division
+
 import numpy as np
-import dust_gal_analyzer.DustyGalaxy as dg
 import matplotlib.pyplot as plt
 from sklearn.ensemble import ExtraTreesRegressor as ETR
 from sklearn.cluster import DBSCAN
@@ -13,23 +17,23 @@ from sklearn.cluster import DBSCAN
 def filt_gal_prop(X,ipar,labels):
     ### filter out unused galaxy properties and corresponding labels
 	mask = []
-	print "Disabled input parameters:"
+	print("Disabled input parameters:")
 	if ipar[0] == 0: # deactive Z -> Z
-		print "-- Gas-phase metallicity"
+		print("-- Gas-phase metallicity")
 		mask.append(0)
 		labels = filter(lambda a: a != r'$Z$', labels)
 	if ipar[1] == 0: # deactivate Ms -> Ms, fgas
-		print "-- Stellar mass"
+		print("-- Stellar mass")
 		mask.append(1)
 		mask.append(2)
 		labels = filter(lambda a: a != r'$M_*$', labels)
 		labels = filter(lambda a: a != r'$f_g$', labels)
 	if ipar[2] == 0: # deactivate sfr -> tau_sf
-		print "-- Star formation rate"
+		print("-- Star formation rate")
 		mask.append(3)
 		labels = filter(lambda a: a != r'$\tau_{\rm depletion}$', labels)
 	if ipar[3] == 0: # deactive Mg -> fgas, tau_sf
-		print "-- gas mass"
+		print("-- gas mass")
 		mask.append(2)
 		mask.append(3)
 		labels = filter(lambda a: a != r'$f_g$', labels)
@@ -49,7 +53,7 @@ def input_prepare(ipar,tab):
 		NN = tab.shape[0]
 		KK = tab.shape[1]
 	if len(ipar[ipar!=0]) != KK:
-		print "ERROR: the number of input parameters mismatch the number of active parameters" # it sounds confusing
+		print("ERROR: the number of input parameters mismatch the number of active parameters") # it sounds confusing
 		return np.zeros(0)
 	
 	tab_tmp = np.zeros((NN,len(ipar)))
@@ -79,16 +83,16 @@ def input_prepare(ipar,tab):
 	
 def matrix_prepare(ipar,sim='gal_snapshot_151.npz'): # load simulated dataset and prepare the matrix used for regression
 	### load simulated dataset
-	gal = dg(glist=np.load(sim))
+	gal = np.load(sim)
 
-	Z  = np.log10(gal.get('gas_Z')/0.0134) # Zsolar # X0  #XC0
-	Ms = gal.get('star_mass')                       # X1
-	sfr = gal.get('SFR') # Msolar/yr                
-	Mg = gal.get('gas_mass')
+	Z  = np.log10(gal['gas_Z']/0.0134) # Zsolar # X0  #XC0
+	Ms = gal['star_mass']                       # X1
+	sfr = gal['SFR'] # Msolar/yr                
+	Mg = gal['gas_mass']
 	ssfr = sfr/Ms                                         #XC1
 	fgas = Mg/(Mg+Ms)   # gas mass fraction         # X2
 	tau_sf = Mg/sfr     # depletion time            # X3
-	Md = gal.get('dust_mass') # Msolar
+	Md = gal['dust_mass'] # Msolar
 	dgr = Md/Mg                                     # Y   #XC2
 
 	NN = len(Md)
@@ -127,7 +131,7 @@ def matrix_prepare(ipar,sim='gal_snapshot_151.npz'): # load simulated dataset an
 	plt.figure()
 	plt.plot(X[:,0],Y,'co',alpha=0.3)
 	for i in np.unique(clt.labels_):
-		print "cluster label = ",i,len(Y[clt.labels_==i])*1.0/NN
+		print("cluster label = {} {}".format(i,len(Y[clt.labels_==i])*1.0/NN))
 		plt.plot(X[clt.labels_==i,0],Y[clt.labels_==i],'o',alpha=0.3,label=str(i))
 	plt.legend()
 	plt.xlabel(r'$\log (Z/Z_\odot)$')
@@ -146,7 +150,7 @@ def matrix_prepare(ipar,sim='gal_snapshot_151.npz'): # load simulated dataset an
 def split_train_cv(X,Y):
 # split training and c.v. sets
 	NN = len(Y)
-	ID = np.unique((np.random.random(NN*7/10)*(NN-1)).astype(int))
+	ID = np.unique((np.random.random(int(NN*7/10))*(NN-1)).astype(int))
 	ID_cv = np.arange(NN)[np.where(np.array(map(lambda x: x not in ID, np.arange(NN)))==True)]
 
 	return X[ID],Y[ID],X[ID_cv],Y[ID_cv]
@@ -180,8 +184,8 @@ def predict(regr,x):
 if __name__ == "__main__":
 	import sys
 	if len(sys.argv) < 3:
-		print "ERROR: parameter(s) missing!"
-		print "EXAMPLE: python dgr_extrarandomtree.py parameter_list table_input [DGR_output]"
+		print("ERROR: parameter(s) missing!")
+		print("EXAMPLE: python dgr_extrarandomtree.py parameter_list table_input [DGR_output]")
 		exit(2)
 	param = sys.argv[1]
 	in_tab = sys.argv[2]
@@ -192,11 +196,11 @@ if __name__ == "__main__":
 	X,Y,labels = matrix_prepare(ipar,sim='gal_snapshot_151.npz')
 	X,Y,X_cv,Y_cv = split_train_cv(X,Y)
 	regr,mse_train,mse_cv = regression(X,Y,X_cv,Y_cv,n_estimators=200,criterion='mse',max_depth=10)
-	print "mse_train, mse_c.v. = ",mse_train,mse_cv
+	print("mse_train, mse_c.v. = {} {}".format(mse_train,mse_cv))
 	
 	Y_out = predict(regr,X_in)
 	if len(sys.argv) > 3:
 		out_dgr = sys.argv[3]
 		np.savetxt(out_dgr,Y_out)
 	else:
-		print Y_out
+		print(Y_out)
