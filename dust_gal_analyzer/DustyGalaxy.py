@@ -1,3 +1,6 @@
+from __future__ import division
+from __future__ import print_function
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -6,7 +9,7 @@ class DustyGalaxy(object):
 
 	def __init__(self, glist):
 
-		self._set_mpl()
+#		self._set_mpl()
 
 		self._glist = glist
 		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
@@ -18,6 +21,11 @@ class DustyGalaxy(object):
 		self._Mdhr = glist['dust_mass_hr']
 		self._rg = glist['gas_radii']
 		self._Zg = glist['gas_Z']
+		self._Zgm = glist['gas_Zm']
+		if 'star_Z' in glist.files: # to do: a smarter way to gal.npz version backward compatibility
+			self._Zs = glist['star_Z']
+		else:
+			self._Zs = 0.
 		self._Zd = self._Md / glist['gas_mass']
 		self._Ztot = (self._Zg * self._Mg + self._Md)/glist['gas_mass'] # depreciated?
 		self._SFR =glist['SFR'] # Msun/yr
@@ -36,7 +44,9 @@ class DustyGalaxy(object):
 		if(field == 'gas_mass_hr'): return self._Mghr
 		if(field == 'gas_radii'): return self._rg
 		if(field == 'gas_Z'): return self._Zg
+		if(field == 'gas_Zm'): return self._Zgm
 		if(field == 'star_mass'): return self._Ms
+		if(field == 'star_Z'): return self._Zs
 		if(field == 'dust_mass'): return self._Md
 		if(field == 'dust_mass_hr'): return self._Mdhr
 		if(field == 'dust_Z'): return self._Zd
@@ -51,9 +61,11 @@ class DustyGalaxy(object):
 		if(field == 'volume'): 
 			return self._vol
 		else:
-			return ['gas_mass','gas_mass_hr','gas_radii','gas_Z','star_mass',
-			'dust_mass','dust_mass_hr','dust_Z','SFR','SFRD','dust_density',
-			'gas_density','gas_metal_density','redshift','hubble_constant',
+			return ['gas_mass','gas_mass_hr','gas_radii','gas_Z','gas_Zm',
+			'star_mass','star_Z',
+			'dust_mass','dust_mass_hr','dust_Z',
+			'SFR',
+			'SFRD','dust_density','gas_density','gas_metal_density','redshift','hubble_constant',
 			'dimension','volume']
 
 ########################################################################
@@ -334,7 +346,7 @@ if __name__ == "__main__":
 	data = np.load(sys.argv[1])
 	gal =  DustyGalaxy(glist=data)
 
-	print gal.get('')
+	print(gal.get(''))
 
 	plt.figure()
 	gal.plot_dmf()

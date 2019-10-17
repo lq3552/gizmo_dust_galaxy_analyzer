@@ -1,3 +1,6 @@
+from __future__ import division
+from __future__ import print_function
+
 import numpy as np
 import os.path as path
 import caesar as cs
@@ -28,7 +31,7 @@ class DustyGalaxyExtractor(object):
 		if (not (path.isfile('caesar_'+self._file))) or (self._replace==1):
 			self.obj.save('caesar_'+self._file)
 		else:
-			print 'Saving aborted: caesar_'+self._file+' already exists!'
+			print('Saving aborted: caesar_'+self._file+' already exists!')
 	
 	def gal_extract(self):
 		ds = self.ds
@@ -56,7 +59,7 @@ class DustyGalaxyExtractor(object):
 			rloc = loc[:,0]**2+loc[:,1]**2+loc[:,2]**2
 			filt = np.where(rloc <= rg2)
 			filt2 = np.where(rloc <= 0.25*rg2)
-			print "Finish calculating local r_pos..."
+			print('Finish calculating local r_pos...')
 			Mg.append(gal.masses['gas'].in_units('msun'))
 			Ms.append(gal.masses['stellar'].in_units('msun'))
 			Mh.append(gal.masses['H'].in_units('msun'))
@@ -127,7 +130,7 @@ class DustyGalaxyExtractor(object):
 		np.savez(fname,\
 				gas_mass = Mg, dust_mass = Md,\
 				gas_mass_hr = Mg_half, dust_mass_hr = Md_half,\
-				star_mass = Ms, gas_Z = Z,gas_Zm = Zm, gas_ZO = ZO, SFR = SFR,\
+				star_mass = Ms, star_Z = Zs gas_Z = Z,gas_Zm = Zm, gas_ZO = ZO, SFR = SFR,\
 				mass_h = Mh, mass_hi = Mhi, mass_h2 = Mh2, mass_tot = Mtot,\
 				baryon_radii = rb,baryon_radii_hm = rbh,\
 				star_radii = rs,star_radii_hm = rsh,\
@@ -136,7 +139,7 @@ class DustyGalaxyExtractor(object):
 				T_mass_weighted = Tmw, T_sfr_weighted = Tsw, T_vir = Tvir,\
 				hp = ds.hubble_constant, redshift = ds.current_redshift,dimension = dims,\
 				SFRD = SFRD,rhod = rhod,rhog = rhog,rhogz = rhogz)
-		print 'Save the table of galaxy properties to '+fname+'.'
+		print('Save the table of galaxy properties to '+fname+'.')
 		glist = np.load(fname)
 		return glist
 
@@ -147,7 +150,6 @@ if __name__ == "__main__":
 	import sys
 	fname = sys.argv[1]
 	dge = DustyGalaxyExtractor(fname,replace=0)
-	print dge._file
+	print(dge._file)
 	dge.savec()
 	glist = dge.gal_extract()
-	print glist['dust_mass'].shape,glist['star_mass'].shape
