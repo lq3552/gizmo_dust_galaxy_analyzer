@@ -2,7 +2,6 @@ import numpy as np
 import os.path as path
 import caesar as cs
 import yt
-import constants as C
 
 class DustyGalaxyExtractor(object):
 	###Extract galaxies and their properties from a GIZMO-dust snapshot
@@ -35,6 +34,7 @@ class DustyGalaxyExtractor(object):
 		ds = self.ds
 		obj = self.obj
 		ad = ds.all_data()
+		Mcode = ds.mass_unit.in_units('msun').value
 
 		# properties of individual galaxies
 		Mg,Mg_half,Md,Md_full,Md_half,Ms,Mh,Mhi,Mh2,Mtot = [],[],[],[],[],[],[],[],[],[]
@@ -63,10 +63,10 @@ class DustyGalaxyExtractor(object):
 			Mhi.append(gal.masses['HI'].in_units('msun'))
 			Mh2.append(gal.masses['H2'].in_units('msun'))
 			Mtot.append(gal.masses['total'].in_units('msun'))
-			Md.append(np.sum(ad[('PartType0', 'Dust_Masses')][index])*C.Mcode/C.Msun/ds.hubble_constant)
-			Md_full.append(np.sum(data_Md[filt])*C.Mcode/C.Msun/ds.hubble_constant)
+			Md.append(np.sum(ad[('PartType0', 'Dust_Masses')][index])*Mcode)
+			Md_full.append(np.sum(data_Md[filt])*Mcode)
 			Mg_half.append(np.sum(data_Mg[filt2]))
-			Md_half.append(np.sum(data_Md[filt2])*C.Mcode/C.Msun/ds.hubble_constant)
+			Md_half.append(np.sum(data_Md[filt2])*Mcode)
 			rb.append(gal.radii['baryon'].in_units('kpc'))
 			rbh.append(gal.radii['baryon_half_mass'].in_units('kpc'))
 			rg.append(gal.radii['gas'].in_units('kpc'))
@@ -118,7 +118,7 @@ class DustyGalaxyExtractor(object):
 		# properties of the cosmo box
 		dims = np.array(ds.domain_width.in_units('Mpccm'))
 		SFRD = np.sum(ad[('PartType0', 'StarFormationRate')])/(dims[0]*dims[1]*dims[2])
-		rhod = np.sum(ad[('PartType0', 'Dust_Masses')])*C.Mcode/C.Msun/ds.hubble_constant/(dims[0]*dims[1]*dims[2])
+		rhod = np.sum(ad[('PartType0', 'Dust_Masses')])*Mcode/(dims[0]*dims[1]*dims[2])
 		massg = np.array(ad[('PartType0', 'Masses')].in_units('msun'))
 		rhog = np.sum(massg)/(dims[0]*dims[1]*dims[2]) - rhod
 		rhogz = np.sum(massg*ad[('PartType0','Metallicity_00')])/(dims[0]*dims[1]*dims[2])
