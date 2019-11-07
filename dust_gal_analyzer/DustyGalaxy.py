@@ -5,13 +5,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 
+## TODO: use kwargs for pyplot paramaters
+
 class DustyGalaxy(object):
 
 	def __init__(self, glist):
 
-#		self._set_mpl()
+		if glist[-4:] != '.npz': raise NameError('The filename must have extension .npz')
 
 		self._glist = glist
+		glist = np.load(glist)
 		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
 		self._Mghi = glist['mass_hi']
 		self._Mgh2 = glist['mass_h2']
@@ -38,6 +41,7 @@ class DustyGalaxy(object):
 		self._dim = glist['dimension'] # comoving Mpc
 		self._vol = (self._dim[0]*self._dim[1]*self._dim[2]) # comoving Mpc^3
 
+		self._set_mpl()
 
 	def get(self, field): # cumbersome, need improvement
 		if(field == 'gas_mass'): return self._Mg
@@ -340,11 +344,10 @@ class DustyGalaxy(object):
 if __name__ == "__main__":
 	# usage example
 	import sys
+	
 	if len(sys.argv) < 2: raise NameError('Please give the name of .npz file containing information of galaxies!')
-	if sys.argv[1][-4:] != '.npz': raise NameError('The file name must end with .npz')
-
-	data = np.load(sys.argv[1])
-	gal =  DustyGalaxy(glist=data)
+	glist = sys.argv[1]
+	gal =  DustyGalaxy(glist)
 
 	print(gal.get(''))
 
