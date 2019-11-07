@@ -11,27 +11,29 @@ class DustyGalaxyExtractor(object):
 	###Parameter: 
 	###    fname: name of snapshot
 	###  replace: 0 -  if caesar output exists, directly load it and prohibit saving; 1 - not check if caesar output exists
-	def __init__(self, fname, replace = 0):
+	def __init__(self, snapshot, caesar, replace = 0, **kwargs):
 		# load the snapshot into yt
-		self.ds = yt.load(fname)
-		self._file = fname
+		self.ds = yt.load(snapshot)
+		self._yt = snapshot
+		self._caesar = caesar
 		self._replace = replace
 		# load or calculate caesar object
-		if (not (path.isfile('caesar_'+fname))) or (replace==1):
+		if (not (path.isfile(self._yt))): raise NameError('Snapshot file {} does not exist!'.format(self._yt))
+		if (not (path.isfile(self._caesar))) or (replace==1):
 			# create a new CAESAR object, and pass along the yt dataset
+			print('Create new CAESAR file...')
 			self.obj = cs.CAESAR(self.ds)
-			# find haloes and galaxies
-			self.obj.member_search(blackholes=True,lowres=[2,3])
+			self.obj.member_search(**kwargs)#(blackholes=True,lowres=[2,3])
 		else:
-			self.obj = cs.load('caesar_'+fname)
+			self.obj = cs.load(self._caesar)
 			self.obj.yt_dataset = self.ds
 
 	def savec(self):
 		# save the caesar output
-		if (not (path.isfile('caesar_'+self._file))) or (self._replace==1):
-			self.obj.save('caesar_'+self._file)
+		if (not (path.isfile(self._caesar))) or (self._replace==1):
+			self.obj.save(self._caesar)
 		else:
-			print('Saving aborted: caesar_'+self._file+' already exists!')
+			print('Saving aborted: CAESAR file already exists!')
 	
 	def gal_extract(self):
 		ds = self.ds
@@ -149,7 +151,7 @@ if __name__ == "__main__":
 	# usage example
 	import sys
 	fname = sys.argv[1]
-	dge = DustyGalaxyExtractor(fname,replace=0)
+	dge = DustyGalaxyExtractor(fname,replace=0,blackholes=True,lowres=[2,3])
 	print(dge._file)
 	dge.savec()
 	glist = dge.gal_extract()

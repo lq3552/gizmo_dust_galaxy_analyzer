@@ -33,10 +33,13 @@ sudo python setup.py install
 To extract dusty galaxies from GIZMO snapshots:
 ```python
 from dust_gal_analyzer import DustyGalaxyExtractor 
-dge = DustyGalaxyExtractor(fname,replace=0)
-dge.savec()
+snapshot = 'snapshot_000.hdf5'
+caesar = 'caesar_snapshot_000.hdf5'
+dge = DustyGalaxyExtractor(snapshot,caesar,replace=0,blackholes=True,dust=False,lowres=[2,3])
 glist = dge.gal_extract()
 ```
+This will include blackhole particles and ignore active dust particles (PartType=3) when extracting properties galaxies. A CAESAR file will be created if it does not already exist.
+Please refer to [caesar](http://caesar.readthedocs.io/en/latest/index.html) for details of `**kwargs` (e.g. `blackholes=True,dust=False,lowres=[2,3]`).
 
 To analyze dusty galaxy properties or statistics, such as the dust-mass function:
 ```python
