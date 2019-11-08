@@ -15,10 +15,10 @@ class DustyGalaxy(object):
 
 		self._glist = glist
 		glist = np.load(glist)
-		self._Mg = glist['gas_mass'] - glist['dust_mass'] # Msun
+		self._Mg = glist['gas_mass'] # Msun
 		self._Mghi = glist['mass_hi']
 		self._Mgh2 = glist['mass_h2']
-		self._Mghr = glist['gas_mass_hr'] - glist['dust_mass_hr'] # Msun
+		self._Mghr = glist['gas_mass_hr']
 		self._Ms = glist['star_mass']
 		self._Md = glist['dust_mass']
 		self._Mdhr = glist['dust_mass_hr']
