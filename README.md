@@ -44,8 +44,9 @@ Please refer to [caesar](http://caesar.readthedocs.io/en/latest/index.html) for 
 To analyze dusty galaxy properties or statistics, such as the dust-mass function:
 ```python
 from dust_gal_analyzer import DustyGalaxy
+glist = 'gal_snapshot_000.npz'
 gal =  DustyGalaxy(glist)
-gal.plot_dmf()
+gal.plot_dmf(**kwargs)
 ```
 
 ## Tools
