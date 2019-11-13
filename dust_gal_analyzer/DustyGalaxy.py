@@ -156,81 +156,66 @@ class DustyGalaxy(object):
 #	plt.axis([0,8,-4.4,-1.0])
 #	plt.savefig('DMF.png',dpi=300)
 #########################################################################
-	def plot_dmf(self,sty = 'o',label = None,yMIN = -1,yMAX = -1,\
-			alpha = None,\
-			lw = 1.5,\
-			markersize = 10,\
+	def plot_dmf(self,binsize = 0.1,yMIN = -1,yMAX = -1,\
+			sty = 'o',\
 			xlabel =r'$\log\ M_d\ [M_\odot]$',\
-			ylabel =r'$\log\ \phi\ [{\rm Mpc^{-3}dex^{-1}}]$'):
+			ylabel =r'$\log\ \phi\ [{\rm Mpc^{-3}dex^{-1}}]$',**kwargs):
 		# plot dust mass function
-		l1 = self._plot_dmf(sty,label,yMIN,yMAX,alpha,lw,markersize,xlabel,ylabel)
+		l1 = self._generic_plot_massfunc(self._Md,binsize,yMIN,yMAX,sty,xlabel,ylabel,**kwargs)
 		return l1
 	
-	def plot_gmf(self,sty = 'o',label = None,yMIN = -1,yMAX = -1,\
-			alpha = None,\
+	def plot_gmf(self,binsize = 0.1,yMIN = -1,yMAX = -1,\
+			sty = 'o',\
 			xlabel =r'$\log\ M_g\ [M_\odot]$',\
-			ylabel =r'$\log\ \phi\ [{\rm Mpc^{-3}dex^{-1}}]$'):
+			ylabel =r'$\log\ \phi\ [{\rm Mpc^{-3}dex^{-1}}]$',**kwargs):
 		# plot dust mass function
-		l1 = self._plot_gmf(sty,label,yMIN,yMAX,alpha,xlabel,ylabel)
+		l1 = self._generic_plot_massfunc(self._Mg,binsize,yMIN,yMAX,sty,xlabel,ylabel,**kwargs)
 		return l1
 	
-	def plot_smf(self,sty = 'o',label = None,yMIN = -1,yMAX = -1,\
-			alpha = None,\
+	def plot_smf(self,binsize = 0.1,yMIN = -1,yMAX = -1,\
+			sty = 'o',\
 			xlabel =r'$\log\ M_*\ [M_\odot]$',\
-			ylabel =r'$\log\ \phi\ [{\rm Mpc^{-3}dex^{-1}}]$'):
+			ylabel =r'$\log\ \phi\ [{\rm Mpc^{-3}dex^{-1}}]$',**kwargs):
 		# plot stellar mass function
-		l1 = self._plot_smf(sty,label,yMIN,yMAX,alpha,xlabel,ylabel)
+		l1 = self._generic_plot_massfunc(self._Ms,binsize,yMIN,yMAX,sty,xlabel,ylabel,**kwargs)
 		return l1
 	
-	def plot_dgr(self,x = None,sty = 'o',label = None,\
-			markersize = 1,\
-			alpha = None,\
+	def plot_dgr(self,x = None, mode = 'scatter',\
 			xlabel = r'$\log\ (Z/Z_\odot)$',\
-			ylabel = r'$\log$ DGR' ):
+			ylabel = r'$\log$ DGR', **kwargs):
 		# plot dust to gas ratio (DGR) vs x (default: Zg)
 		if x == None:
 			x = np.log10(self._Zg/0.0134)
-		l1 = self._plot_dgr(x,sty,label,markersize,alpha,xlabel,ylabel)
+		l1 = self._generic_plot_scaling(x,np.log10(self._Md/self._Mg),mode,xlabel,ylabel,**kwargs)
 		return l1
 
-	def plot_dtm(self,x = None,sty = 'o',label = None,\
-			markersize = 1,\
-			alpha = None,\
+	def plot_dtm(self,x = None, mode = 'scatter',\
 			xlabel = r'$\log\ (Z/Z_\odot)$',\
-			ylabel = r'$\log$ DTM' ):
+			ylabel = r'$\log$ DTM', **kwargs):
 		# plot dust to (gas) metal ratio (DTM) vs x (default: Zg)
 		if x == None:
 			x = np.log10(self._Zg/0.0134)
-		l1 = self._plot_dtm(x,sty,label,markersize,alpha,xlabel,ylabel)
+		l1 = self._generic_plot_scaling(x,np.log10(self._Md/(self._Zg*self._Mg)),mode,xlabel,ylabel,**kwargs)
 		return l1
 
-	def plot_dsr(self,x = None,sty = 'o',label = None,\
-			alpha = None,\
+	def plot_dsr(self,x = None, mode = 'scatter',\
 			xlabel = r'$\log\ M_*\ [M_\odot]$',\
-			ylabel = r'$\log$ DSR' ):
+			ylabel = r'$\log$ DSR', **kwargs):
 		# plot dust to stellar mass ratio (DGR) vs x (default: Mstar)
 		if x == None:
-			x = self._Ms
-		l1 = self._plot_dsr(x,sty,label,alpha,xlabel,ylabel)
+			x = np.log10(self._Ms)
+		l1 = self._generic_plot_scaling(x,np.log10(self._Md/self._Ms),mode,xlabel,ylabel,**kwargs)
 		return l1
 
-	def plot_dmr(self,x = None,sty = 'o',label = None,\
-			alpha = None,\
-			xlabel = r'$\log\ Z\ [Z_\odot]$',\
-			ylabel = r'$\log$ DMR' ):
-		# plot dust to gas metallicity ratio (DMR) vs x
-		if x == None:
-			x = self._Zg/0.0134
-		l1 = self._plot_dmr(x,sty,label,alpha,xlabel,ylabel)
-		return l1
-
-	def plot_mmr(self,sty = 'o',label = None,\
-			alpha = None,\
+	def plot_mzr(self, y = None, mode = 'scatter',\
 			xlabel = r'$\log\ (M_*/M_\odot)$',\
-			ylabel= r'$12 + \log\ \mathrm{O/H}$'):
+			ylabel= r'$\log\ Z\ [Z_\odot]$', **kwargs):
+		# plot mass-metallicity relations
 #		l1 = self._plot_mmr(self._Ms,np.log10(self._Zg/0.0134) + 8.69,sty,label,alpha,xlabel,ylabel)
 #		l1 = self._plot_mmr(self._Ms,np.log10(self._ZgO/8.65e-3) + 8.69 + 0.4,sty,label,alpha,xlabel,ylabel)
-		l1 = self._plot_mmr(self._Ms,np.log10(self._Zg/0.02),sty,label,alpha,xlabel,ylabel)
+		if y == None:
+			y = np.log10(self._Zg/0.0134)
+		l1 = self._generic_plot_scaling(np.log10(self._Ms),y,mode,xlabel,ylabel,**kwargs)
 		return l1
 
 	def plot_sdr(self,sty = 'o',label = None,\
@@ -240,23 +225,23 @@ class DustyGalaxy(object):
 		l1 = self._plot_sdr(self._Ms,self._Md,sty,label,alpha,xlabel,ylabel)
 		return l1
 
-	def _plot_dmf(self,sty,label,yMIN,yMAX,alpha,lw,markersize,xlabel,ylabel):
+	def _plot_dmf(self,yMIN,yMAX,sty,xlabel,ylabel,**kwargs):
 		Md = self._Md[np.where(self._Md>0.0)].flatten()
 		bins,mf = self._massfunc(Md,binsize = 0.1,MIN=yMIN,MAX=yMAX)
-		l1, = plt.plot(bins,mf,sty,lw=lw,markersize=markersize,alpha=alpha,label=label)
+		l1, = plt.plot(bins,mf,sty,**kwargs)
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
 
-	def _plot_gmf(self,sty,label,yMIN,yMAX,alpha,xlabel,ylabel):
+	def _plot_gmf(self,yMIN,yMAX,sty,xlabel,ylabel,**kwargs):
 		Mg = self._Mg[np.where(self._Mg>0.0)].flatten()
 		bins,mf = self._massfunc(Mg,binsize = 0.1,MIN=yMIN,MAX=yMAX)
-		l1, = plt.plot(bins,mf,sty,alpha=alpha,label=label)
+		l1, = plt.plot(bins,mf,sty,**kwargs)
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
 
-	def _plot_smf(self,sty,label,yMIN,yMAX,alpha,xlabel,ylabel):
+	def _plot_smf(self,yMIN,yMAX,sty,xlabel,ylabel,**kwargs):
 		Ms = self._Ms[np.where(self._Ms>0.0)].flatten()
 		bins,mf = self._massfunc(Ms,binsize = 0.1,MIN=yMIN,MAX=yMAX)
 		l1, = plt.plot(bins,mf,sty,alpha=alpha,label=label)
@@ -291,38 +276,21 @@ class DustyGalaxy(object):
 		mf[len(bins)-1] = -30
 		return (bins+0.5*binsize),mf
 	
-	def _plot_dgr(self,x,sty,label,markersize,alpha,xlabel,ylabel):
-		l1, = plt.plot(x,np.log10(self._Md/self._Mg),sty,alpha=alpha,markersize=markersize,label=label)
+	def _generic_plot_massfunc(self,M,binsize,yMIN,yMAX,sty,xlabel,ylabel,**kwargs):
+		M = M[np.where(M>0.0)].flatten()
+		bins,mf = self._massfunc(M,binsize=binsize,MIN=yMIN,MAX=yMAX)
+		l1, = plt.plot(bins,mf,sty,**kwargs)
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
 
-	def _plot_dtm(self,x,sty,label,markersize,alpha,xlabel,ylabel):
-		l1, = plt.plot(x,np.log10(self._Md/(self._Zg*self._Mg)),sty,markersize=markersize,alpha=alpha,label=label)
-		plt.xlabel(xlabel)
-		plt.ylabel(ylabel)
-		return l1
-
-	def _plot_dsr(self,x,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(np.log10(x),np.log10(self._Md/self._Ms),sty,alpha=alpha,label=label)
-		plt.xlabel(xlabel)
-		plt.ylabel(ylabel)
-		return l1
-
-	def _plot_dmr(self,x,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(np.log10(x),np.log10(self._Zd/self._Zg),sty,alpha=alpha,label=label)
-		plt.xlabel(xlabel)
-		plt.ylabel(ylabel)
-		return l1
-	
-	def _plot_mmr(self,mass,met,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(np.log10(mass),met,sty,alpha=alpha,label=label)
-		plt.xlabel(xlabel)
-		plt.ylabel(ylabel)
-		return l1
-
-	def _plot_sdr(self,Ms,Md,sty,label,alpha,xlabel,ylabel):
-		l1, = plt.plot(np.log10(Ms),np.log10(Md),sty,alpha=alpha,label=label)
+	def _generic_plot_scaling(self,x,y,mode,xlabel,ylabel,**kwargs):
+		if mode == 'scatter':
+			l1 = plt.scatter(x,y,**kwargs)
+		elif mode == 'hexbin':
+			l1 = plt.hexbin(x,y,**kwargs)
+		else:
+			raise AttributeError('Only "scatter" and "hexbin" are allowed!')
 		plt.xlabel(xlabel)
 		plt.ylabel(ylabel)
 		return l1
