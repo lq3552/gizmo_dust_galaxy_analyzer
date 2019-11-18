@@ -151,7 +151,8 @@ def split_train_cv(X,Y):
 # split training and c.v. sets
 	NN = len(Y)
 	ID = np.unique((np.random.random(int(NN*7/10))*(NN-1)).astype(int))
-	ID_cv = np.arange(NN)[np.where(np.array(map(lambda x: x not in ID, np.arange(NN)))==True)]
+	ID_cv = np.arange(NN)
+	ID_cv = np.delete(ID_cv,ID)
 
 	return X[ID],Y[ID],X[ID_cv],Y[ID_cv]
 
