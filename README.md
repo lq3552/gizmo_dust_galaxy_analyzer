@@ -49,11 +49,12 @@ gal =  DustyGalaxy(glist)
 gal.plot_dmf(**kwargs)
 ```
 
-## Tools
+## Machine Learning Tools
 
-You can find a tool to predict dust-to-gas ratio in `machine-learning-tools`, using a regressor trained by simulated data. 
+You can find a tool to predict dust-to-gas ratio (DGR) in `machine-learning-tools`, using a regressor trained by simulated data. 
 Please define which input parameters are active following `param.list`, and set values of input parameters following `tab.txt`.
 Then you can run the tool by
 ```bash
 python dgr_extrarandomtree.py param.list tab.txt [DGR_output_list]
 ```
+to estimate DGR from input parameters.
