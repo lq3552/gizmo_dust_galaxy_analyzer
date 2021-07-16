@@ -1,5 +1,5 @@
 __version__ = '1.4'
-__all__ = ['DustyGalaxy','DustyGalaxyExtractor','constants']
+__all__ = ['DustyGalaxy','assign_halo_gas_to_galaxies','DustyGalaxyExtractor','constants']
 
 # Import the classes and functions from the files of the same
 # name. This allows users to access the classes and functions
